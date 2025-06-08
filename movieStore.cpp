@@ -1,136 +1,126 @@
+// -----------------------------------------------------------------------------
+// movieStore.cpp
+// Implementation of the MovieStore, which manages inventory and display logic.
+// -----------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Standard library headers
+//------------------------------------------------------------------------------
+#include <algorithm>     // for std::sort
+#include <iostream>      // for std::cout, std::cerr
+#include <string>        // for std::string
+#include <typeinfo>      // optionally for type checks
+#include <unordered_map> // for grouping by type
+#include <vector>        // for dynamic arrays
+
+//------------------------------------------------------------------------------
+// Project headers
+//------------------------------------------------------------------------------
+#include "movie.h"
 #include "movieStore.h"
-#include "commandFactory.h"
-#include "movieFactory.h"
-
-#include <fstream>
-#include <algorithm>
-#include <iostream>
 
 //------------------------------------------------------------------------------
-// Accessors
+// MovieStore methods
 //------------------------------------------------------------------------------
 
-// Return the array of movie buckets
-std::vector<Movie*> (&MovieStore::getMoviesByType())[TABLE_SIZE] {
-    return moviesByType;
-}
-
-// Return the customer map
-std::unordered_map<int, Customer*>& MovieStore::getCustomerList() {
-    return customerList;
-}
-
-//------------------------------------------------------------------------------
-// Utility functions
-//------------------------------------------------------------------------------
-
-std::string MovieStore::trimString(const std::string& str) {
-    const auto start = str.find_first_not_of(" \t\n\r");
-    if (start == std::string::npos) return "";
-    const auto end = str.find_last_not_of(" \t\n\r");
-    return str.substr(start, end - start + 1);
-}
-
-std::vector<std::string> MovieStore::splitString(const std::string& str, char delimiter) {
-    std::vector<std::string> tokens;
-    std::string temp;
-    for (char c : str) {
-        if (c == delimiter) {
-            tokens.push_back(trimString(temp));
-            temp.clear();
-        } else {
-            temp += c;
-        }
-    }
-    if (!temp.empty()) {
-        tokens.push_back(trimString(temp));
-    }
-    return tokens;
-}
-
-//------------------------------------------------------------------------------
-// File readers
-//------------------------------------------------------------------------------
-
-void MovieStore::readCustomersFromFile(const std::string& filename) {
-    std::ifstream inFile(filename);
-    if (!inFile) {
-        std::cerr << "Error opening customer file: " << filename << std::endl;
-        return;
-    }
-    std::string line;
-    while (std::getline(inFile, line)) {
-        if (line.empty()) continue;
-        auto parts = splitString(line, ' ');
-        if (parts.size() >= 3) {
-            int id = std::stoi(parts[0]);
-            auto cust = new Customer(id, parts[1], parts[2]);
-            customerList.emplace(id, cust);
-        }
-    }
-}
-
-void MovieStore::readMoviesFromFile(const std::string& filename) {
-    std::ifstream inFile(filename);
-    if (!inFile) {
-        std::cerr << "Error opening movie file: " << filename << std::endl;
-        return;
-    }
-    std::string line;
-    while (std::getline(inFile, line)) {
-        if (line.empty()) continue;
-        auto parts = splitString(line, ',');
-        char type = parts[0][0];
-        Movie* movie = MovieFactory::create(type, parts);
-        if (movie) {
-            int bucket = getBucket(type);
-            moviesByType[bucket].push_back(movie);
-        }
-    }
-}
-
-// Read and execute commands
-void MovieStore::readCommandsFromFile(const std::string& filename) {
-    std::ifstream inFile(filename);
-    if (!inFile) {
-        std::cerr << "Error opening commands file: " << filename << std::endl;
-        return;
-    }
-    std::string line;
-    while (std::getline(inFile, line)) {
-        if (line.empty()) continue;
-        auto parts = splitString(line, ' ');
-        char cmd = parts[0][0];
-        auto command = CommandFactory::create(cmd, parts);
-        if (command) {
-            command->perform(*this, parts);
-            delete command;
-        }
-    }
-}
-
-// Execute commands directly
-void MovieStore::executeCommands(const std::string& filename) {
-    readCommandsFromFile(filename);
-}
-
-// Sort all movie buckets
-void MovieStore::sortInventory() {
-    for (auto& bucket : moviesByType) {
-        std::sort(bucket.begin(), bucket.end(), [](Movie* a, Movie* b) {
-            return a->isLessThan(b);
-        });
-    }
-}
-
-// Destructor: free all allocated movies and customers
+// Destructor
+// Frees all dynamically allocated Movie objects in the inventory.
 MovieStore::~MovieStore() {
-    for (auto& bucket : moviesByType) {
-        for (auto* m : bucket) {
-            delete m;
+  for (auto &entry : inventory) {
+    delete entry.second;
+  }
+}
+
+// addMovie
+// Adds a Movie to the inventory map by its key. Records the original stock
+// count on first insertion for later reference.
+void MovieStore::addMovie(Movie *movie) {
+  if (movie == nullptr) {
+    return;
+  }
+
+  const std::string key = movie->getKey();
+  inventory[key] = movie;
+
+  if (originalStock.find(key) == originalStock.end()) {
+    originalStock[key] = movie->getStock();
+  }
+}
+
+// getOriginalStock
+// Retrieves the stored original stock count for a given movie key.
+// Returns -1 if the key is not found.
+int MovieStore::getOriginalStock(const std::string &movieKey) const {
+  auto it = originalStock.find(movieKey);
+  return (it != originalStock.end()) ? it->second : -1;
+}
+
+// findMovie
+// Looks up a Movie by key in the inventory. If not found, prints an error.
+Movie *MovieStore::findMovie(const std::string &key) {
+  auto it = inventory.find(key);
+  if (it != inventory.end()) {
+    return it->second;
+  }
+  std::cerr << "Invalid Movie: Movie not found in inventory " << key << "\n";
+  return nullptr;
+}
+
+// displayInventory
+// Shows the full inventory, grouped by genre code (in reverse alphabetical
+// order), then sorted within each group according to the assignment rules.
+// Prints separators before and after.
+void MovieStore::displayInventory() const {
+  // 1) Collect all movies
+  std::vector<Movie *> allMovies;
+  allMovies.reserve(inventory.size());
+  for (const auto &entry : inventory) {
+    allMovies.push_back(entry.second);
+  }
+
+  // 2) Group by type code
+  std::unordered_map<std::string, std::vector<Movie *>> byType;
+  for (Movie *m : allMovies) {
+    byType[m->getType()].push_back(m);
+  }
+
+  // 3) Extract and sort type codes in descending order
+  std::vector<std::string> types;
+  types.reserve(byType.size());
+  for (const auto &pair : byType) {
+    types.push_back(pair.first);
+  }
+  std::sort(types.rbegin(), types.rend());
+
+  std::cout << "==========================\n";
+
+  // 4) For each type, sort its movies and display them
+  for (const auto &type : types) {
+    auto movies = byType[type];
+
+    std::sort(movies.begin(), movies.end(), [&](Movie *a, Movie *b) {
+      if (type == "C") {
+        // Classics: by year ascending, then title
+        if (a->getYear() != b->getYear()) {
+          return a->getYear() < b->getYear();
         }
+        return a->getTitle() < b->getTitle();
+      }
+      if (type == "D") {
+        // Drama: by director ascending, then title
+        if (a->getDirector() != b->getDirector()) {
+          return a->getDirector() < b->getDirector();
+        }
+        return a->getTitle() < b->getTitle();
+      }
+      // Comedy and others: by title ascending
+      return a->getTitle() < b->getTitle();
+    });
+
+    for (Movie *m : movies) {
+      m->display();
     }
-    for (auto& kv : customerList) {
-        delete kv.second;
-    }
+  }
+
+  std::cout << "==========================\n";
 }

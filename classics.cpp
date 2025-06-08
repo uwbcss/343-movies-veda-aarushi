@@ -1,77 +1,107 @@
+// -----------------------------------------------------------------------------
+// classics.cpp
+// Implementation of the Classics movie type and its factory.
+// -----------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Standard library headers
+//------------------------------------------------------------------------------
+#include <iostream> // for std::cout
+#include <limits>   // for std::numeric_limits
+#include <sstream>  // for std::ostringstream
+
+//------------------------------------------------------------------------------
+// Project headers
+//------------------------------------------------------------------------------
 #include "classics.h"
-#include <iostream>
-#include <sstream>
 
 //------------------------------------------------------------------------------
-// Classics implementation
+// Classics methods
 //------------------------------------------------------------------------------
 
-Classics::Classics(const std::vector<std::string>& params) {
-    if (params.size() == 5) {
-        // params[0] is genre code, skip
-        inventoryCount_ = std::stoi(params[1]);
-        directorName_   = params[2];
-        movieTitle_     = params[3];
-
-        // Parse lead actor and release date from params[4]
-        std::istringstream iss(params[4]);
-        std::string firstName, lastName;
-        int mo, yr;
-        iss >> firstName >> lastName >> mo >> yr;
-
-        leadActor_    = firstName + " " + lastName;
-        releaseMonth_ = mo;
-        releaseYear_  = yr;
-    }
+// display()
+// Prints the movie's details in the format:
+//   "<year> <month>, <actor>, <director>, <title> (<stock>) - Classics"
+void Classics::display() const {
+  std::cout << year << " " << month << ", " << actor << ", " << director << ", "
+            << title << " (" << stock << ") - Classics\n";
 }
 
-// Return the release year
-int Classics::getReleaseYear() const {
-    return releaseYear_;
+// getMovieInfo()
+// Returns a string for transaction history in the format:
+//   "<year> <month>, <actor>, <director>, <title> (<stock>) - Classics"
+std::string Classics::getMovieInfo() const {
+  std::ostringstream oss;
+  oss << year << " " << month << ", " << actor << ", " << director << ", "
+      << title << " (" << stock << ") - Classics";
+  return oss.str();
 }
 
-// Print movie details in the specified format
-void Classics::printDetails() const {
-    std::cout << releaseYear_ << ' '
-              << releaseMonth_ << ", "
-              << leadActor_    << ", "
-              << directorName_ << ", "
-              << movieTitle_   << " ("
-              << inventoryCount_ << ")"
-              << " - Classics"
-              << std::endl;
+// getKey()
+// Generates a unique lookup key based on month, year, and actor:
+//   "<month> <year> <actor>"
+std::string Classics::getKey() const {
+  std::ostringstream oss;
+  oss << month << " " << year << " " << actor;
+  return oss.str();
 }
 
-// Comparison for sorting: year, month, then lead actor
-bool Classics::isLessThan(const Movie* other) const {
-    auto o = dynamic_cast<const Classics*>(other);
-    return (releaseYear_ < o->releaseYear_) ||
-           (releaseYear_ == o->releaseYear_ && releaseMonth_ < o->releaseMonth_) ||
-           (releaseYear_ == o->releaseYear_ &&
-            releaseMonth_ == o->releaseMonth_ &&
-            leadActor_ < o->leadActor_);
-}
+// getType()
+// Returns the character code for the Classics genre ('C')
+std::string Classics::getType() const { return "C"; }
 
-// Match for finding: month, year, and lead actor
-bool Classics::matches(int month,
-                       int year,
-                       const std::string& /*title*/,
-                       const std::string& /*director*/,
-                       const std::string& actor) const {
-    return (releaseMonth_ == month &&
-            releaseYear_  == year  &&
-            leadActor_    == actor);
-}
+// getActor()
+// Accessor for the major actor of this Classic
+std::string Classics::getActor() const { return actor; }
 
-// Register the Classics factory at startup
-ClassicsFactory::ClassicsFactory() {
-    registerType(genreCode_, this);
-}
+// getMonth()
+// Accessor for the release month of this Classic
+int Classics::getMonth() const { return month; }
 
-// Create a new Classics instance
-Movie* ClassicsFactory::makeMovie(const std::vector<std::string>& params) const {
-    return new Classics(params);
-}
+//------------------------------------------------------------------------------
+// ClassicsFactory (self-registering)
+//------------------------------------------------------------------------------
 
-// Instantiate to self-register the factory
-ClassicsFactory theClassicsFactory;
+// Factory for creating Classics instances from an input stream.
+// Reads stock, director, title, actor names, month, and year.
+class ClassicsFactory : public MovieFactory {
+public:
+  ClassicsFactory() { registerType('C', this); }
+
+  Movie *createMovie(std::istream &input) const override {
+    int stockVal;
+    int monthVal;
+    int yearVal;
+    std::string directorVal;
+    std::string titleVal;
+    std::string firstName;
+    std::string lastName;
+
+    // 1) Read stock count
+    input >> stockVal;
+    input.ignore(); // skip comma
+
+    // 2) Read director name (up to comma)
+    std::getline(input, directorVal, ',');
+    input.ignore(); // skip comma
+
+    // 3) Read title (up to comma)
+    std::getline(input, titleVal, ',');
+    input.ignore(); // skip comma
+
+    // 4) Read actor first/last name, month, and year
+    input >> firstName >> lastName >> monthVal >> yearVal;
+    // Discard the rest of the line (if any)
+    input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    // Combine actor first and last name
+    std::string actorName = firstName + " " + lastName;
+
+    // Create and return the Classics object
+    return new Classics(stockVal, directorVal, titleVal, actorName, monthVal,
+                        yearVal);
+  }
+};
+
+// Static instance to register the ClassicsFactory at program startup
+static ClassicsFactory registerClassics;

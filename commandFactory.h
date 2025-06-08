@@ -1,33 +1,49 @@
-#ifndef COMMAND_FACTORY_H
-#define COMMAND_FACTORY_H
+#ifndef COMMANDFACTORY_H
+#define COMMANDFACTORY_H
 
-#include <map>
-#include <string>
-#include <vector>
+//------------------------------------------------------------------------------
+// Standard library headers
+//------------------------------------------------------------------------------
+#include <iostream> // for std::istream in createCommand signature
+#include <map>      // for std::map used in registry
 
-using namespace std;
-
-// forward declaration
+//------------------------------------------------------------------------------
+// Forward declarations
+//------------------------------------------------------------------------------
 class Command;
 
-// Abstract CommandFactory where each subclass of Command needs its own concrete version
-class CommandFactory { // implemented in command
+//------------------------------------------------------------------------------
+/// CommandFactory
+///
+/// Self‐registering factory for creating Command instances based on a
+/// single‐character command code. Derived factories implement createCommand()
+/// to parse their specific parameters and return a new Command object.
+/// ---------------------------------------------------------------------------
+class CommandFactory {
 public:
-  virtual Command *makeCommand(const vector<string> &vs) const = 0;
+  /// createCommand
+  /// Pure‐virtual method to parse input and instantiate a Command.
+  /// \param input  Stream positioned after the command code.
+  virtual Command *createCommand(std::istream &input) const = 0;
 
-  // find the corresponding command factory and get factory to create the object
-  static Command *create(const char &cmd, const vector<string>& vs);
+  /// create
+  /// Static entry point: looks up the factory for `type` and delegates
+  /// to createCommand(). Emits an error on unknown types.
+  /// \param type   Command code character (e.g., 'B', 'R', 'I', 'H')
+  /// \param input  Stream to parse remaining parameters.
+  static Command *create(char type, std::istream &input);
 
-protected:
-  // register a concrete factory with a given name
-  static void registerType(const char &type, CommandFactory *factory);
+  /// registerType
+  /// Registers a factory instance for a given command code.
+  /// Called by each concrete factory at static initialization.
+  /// \param type     Command code character
+  /// \param factory  Pointer to factory instance
+  static void registerType(char type, CommandFactory *factory);
 
 private:
-  /**
-   * Storage place for the concrete command factories
-   * @return map
-   */
-  static map<char, CommandFactory *> &getMap();
+  /// getRegistry
+  /// Returns the singleton map from code → factory.
+  static std::map<char, CommandFactory *> &getRegistry();
 };
 
-#endif // COMMAND_FACTORY_H
+#endif // COMMANDFACTORY_H

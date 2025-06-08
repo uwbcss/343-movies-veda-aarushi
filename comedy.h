@@ -1,43 +1,52 @@
 #ifndef COMEDY_H
 #define COMEDY_H
 
-#include <vector>
+//------------------------------------------------------------------------------
+// Standard library headers
+//------------------------------------------------------------------------------
 #include <string>
 
+//------------------------------------------------------------------------------
+// Project headers
+//------------------------------------------------------------------------------
 #include "movie.h"
 #include "movieFactory.h"
 
-/**
- * Represents a comedy movie with title, director, and release year.
- */
+/// ---------------------------------------------------------------------------
+/// Comedy
+///
+/// Subclass of Movie representing Comedy films. Provides polymorphic overrides
+/// for display, key generation, and type identification.
+/// ---------------------------------------------------------------------------
 class Comedy : public Movie {
 public:
-    /**
-     * Construct from tokens: [genreCode, stock, director, title, year]
-     */
-    explicit Comedy(const std::vector<std::string>& tokens);
+  /// Constructor
+  /// \param stock     Initial stock count
+  /// \param director  Director's name
+  /// \param title     Movie title
+  /// \param year      Release year
+  Comedy(int stock, const std::string &director, const std::string &title,
+         int year)
+      : Movie(stock, director, title, year) {}
 
-    int getReleaseYear() const override;
-    void printDetails() const override;
-    bool isLessThan(const Movie* other) const override;
-    bool matches(int /*month*/,
-                 int year,
-                 const std::string& titleQuery,
-                 const std::string& /*director*/,
-                 const std::string& /*actor*/) const override;
+  /// display
+  /// Prints movie details in the format:
+  ///   "<title>, <year>, <director> (<stock>) - Comedy"
+  void display() const override;
 
-private:
-    static constexpr char genreCode_ = 'F';
-    int releaseYear_{0};
+  /// getMovieInfo
+  /// Returns a string for transaction history:
+  ///   "<title>, <year>, <director> (<stock>) - Comedy"
+  std::string getMovieInfo() const override;
+
+  /// getKey
+  /// Generates unique lookup key:
+  ///   "<title>, <year>"
+  std::string getKey() const override;
+
+  /// getType
+  /// Returns the genre code for Comedy ("F")
+  std::string getType() const override;
 };
 
-/**
- * Factory for Comedy; self-registers with MovieFactory.
- */
-class ComedyFactory : public MovieFactory {
-public:
-    ComedyFactory();
-    Movie* makeMovie(const std::vector<std::string>& tokens) const override;
-};
-
-#endif  // COMEDY_H
+#endif // COMEDY_H

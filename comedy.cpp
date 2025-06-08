@@ -1,61 +1,84 @@
+// -----------------------------------------------------------------------------
+// comedy.cpp
+// Implementation of the Comedy movie type and its factory.
+// -----------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Standard library headers
+//------------------------------------------------------------------------------
+#include <iostream> // for std::cout
+#include <string>   // for std::string, std::to_string
+
+//------------------------------------------------------------------------------
+// Project headers
+//------------------------------------------------------------------------------
 #include "comedy.h"
-#include <iostream>
-#include <vector>
-#include <string>
 
 //------------------------------------------------------------------------------
-// Comedy implementation
+// Comedy methods
 //------------------------------------------------------------------------------
 
-Comedy::Comedy(const std::vector<std::string>& params) {
-    if (params.size() == 5) {
-        // params[0] is genre code, skip
-        inventoryCount_ = std::stoi(params[1]);
-        directorName_  = params[2];
-        movieTitle_    = params[3];
-        releaseYear_   = std::stoi(params[4]);
-    }
+// display()
+// Prints the movie's details in the format:
+//   "<title>, <year>, <director> (<stock>) - Comedy"
+void Comedy::display() const {
+  std::cout << title << ", " << year << ", " << director << " (" << stock
+            << ") - Comedy\n";
 }
 
-// Return the release year
-int Comedy::getReleaseYear() const {
-    return releaseYear_;
+// getMovieInfo()
+// Returns a string suitable for transaction history:
+//   "<title>, <year>, <director> (<stock>) - Comedy"
+std::string Comedy::getMovieInfo() const {
+  return title + ", " + std::to_string(year) + ", " + director + " (" +
+         std::to_string(stock) + ") - Comedy";
 }
 
-// Print movie details in the specified format
-void Comedy::printDetails() const {
-    std::cout << movieTitle_ << ", "
-              << releaseYear_ << ", "
-              << directorName_ << " ("
-              << inventoryCount_ << ")"
-              << " - Comedy"
-              << std::endl;
+// getKey()
+// Generates the lookup key for comedies:
+//   "<title>, <year>"
+std::string Comedy::getKey() const {
+  return title + ", " + std::to_string(year);
 }
 
-// Comparison for sorting: title, then year
-bool Comedy::isLessThan(const Movie* other) const {
-    auto o = dynamic_cast<const Comedy*>(other);
-    return (movieTitle_ < o->movieTitle_) ||
-           (movieTitle_ == o->movieTitle_ && releaseYear_ < o->releaseYear_);
-}
+// getType()
+// Returns the genre code for comedies ("F")
+std::string Comedy::getType() const { return "F"; }
 
-// Match for finding: title and year
-bool Comedy::matches(int /*month*/, int year,
-                     const std::string& titleQuery,
-                     const std::string& /*director*/,
-                     const std::string& /*actor*/) const {
-    return (movieTitle_ == titleQuery && releaseYear_ == year);
-}
+//------------------------------------------------------------------------------
+// ComedyFactory (self-registering)
+//------------------------------------------------------------------------------
 
-// Register the Comedy factory at startup
-ComedyFactory::ComedyFactory() {
-    registerType(genreCode_, this);
-}
+// Factory class for creating Comedy instances from an input stream.
+// Reads stock, director, title, and year.
+class ComedyFactory : public MovieFactory {
+public:
+  ComedyFactory() { registerType('F', this); }
 
-// Create a new Comedy instance
-Movie* ComedyFactory::makeMovie(const std::vector<std::string>& params) const {
-    return new Comedy(params);
-}
+  Movie *createMovie(std::istream &input) const override {
+    int stockVal;
+    int yearVal;
+    std::string directorVal;
+    std::string titleVal;
 
-// Instantiate to self-register the factory
-ComedyFactory theComedyFactory;
+    // 1) Read stock count
+    input >> stockVal;
+    input.ignore(); // skip comma
+
+    // 2) Read director name (up to comma)
+    std::getline(input, directorVal, ',');
+    input.ignore(); // skip comma
+
+    // 3) Read title (up to comma)
+    std::getline(input, titleVal, ',');
+
+    // 4) Read release year
+    input >> yearVal;
+
+    // Create and return the Comedy object
+    return new Comedy(stockVal, directorVal, titleVal, yearVal);
+  }
+};
+
+// Static instance to register this factory at program startup
+static ComedyFactory registerComedy;

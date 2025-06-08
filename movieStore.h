@@ -1,136 +1,66 @@
-#include "movieStore.h"
-#include "commandFactory.h"
-#include "movieFactory.h"
-
-#include <fstream>
-#include <algorithm>
-#include <iostream>
+#ifndef MOVIESTORE_H
+#define MOVIESTORE_H
 
 //------------------------------------------------------------------------------
-// Accessors
+// Standard library headers
 //------------------------------------------------------------------------------
-
-// Return the array of movie buckets
-std::vector<Movie*> (&MovieStore::getMoviesByType())[TABLE_SIZE] {
-    return moviesByType;
-}
-
-// Return the customer map
-std::unordered_map<int, Customer*>& MovieStore::getCustomerList() {
-    return customerList;
-}
+#include <string>        // for std::string
+#include <unordered_map> // for std::unordered_map
 
 //------------------------------------------------------------------------------
-// Utility functions
+// Project headers
 //------------------------------------------------------------------------------
+#include "movie.h"
 
-std::string MovieStore::trimString(const std::string& str) {
-    const auto start = str.find_first_not_of(" \t\n\r");
-    if (start == std::string::npos) return "";
-    const auto end = str.find_last_not_of(" \t\n\r");
-    return str.substr(start, end - start + 1);
-}
+/// ---------------------------------------------------------------------------
+/// MovieStore
+///
+/// Manages the collection of Movie instances in the store. Supports adding
+/// movies, looking up by key, displaying inventory sorted by genre and
+/// the assignment’s criteria, and tracking original stock levels.
+/// ---------------------------------------------------------------------------
+class MovieStore {
+private:
+  std::unordered_map<std::string, Movie *> inventory; ///< Map: key → Movie*
+  std::unordered_map<std::string, int>
+      originalStock; ///< Map: key → initial stock
 
-std::vector<std::string> MovieStore::splitString(const std::string& str, char delimiter) {
-    std::vector<std::string> tokens;
-    std::string temp;
-    for (char c : str) {
-        if (c == delimiter) {
-            tokens.push_back(trimString(temp));
-            temp.clear();
-        } else {
-            temp += c;
-        }
-    }
-    if (!temp.empty()) {
-        tokens.push_back(trimString(temp));
-    }
-    return tokens;
-}
+public:
+  /// Destructor
+  /// Frees all dynamically allocated Movie objects in the inventory.
+  ~MovieStore();
 
-//------------------------------------------------------------------------------
-// File readers
-//------------------------------------------------------------------------------
+  /// addMovie
+  /// Inserts a Movie into the inventory under its unique key. Records the
+  /// original stock count on first insertion.
+  /// \param movie  Pointer to a dynamically allocated Movie
+  void addMovie(Movie *movie);
 
-void MovieStore::readCustomersFromFile(const std::string& filename) {
-    std::ifstream inFile(filename);
-    if (!inFile) {
-        std::cerr << "Error opening customer file: " << filename << std::endl;
-        return;
-    }
-    std::string line;
-    while (std::getline(inFile, line)) {
-        if (line.empty()) continue;
-        auto parts = splitString(line, ' ');
-        if (parts.size() >= 3) {
-            int id = std::stoi(parts[0]);
-            auto cust = new Customer(id, parts[1], parts[2]);
-            customerList.emplace(id, cust);
-        }
-    }
-}
+  /// getInventory
+  /// Returns the current map of keys to Movie pointers.
+  std::unordered_map<std::string, Movie *> getInventory() const {
+    return inventory;
+  }
 
-void MovieStore::readMoviesFromFile(const std::string& filename) {
-    std::ifstream inFile(filename);
-    if (!inFile) {
-        std::cerr << "Error opening movie file: " << filename << std::endl;
-        return;
-    }
-    std::string line;
-    while (std::getline(inFile, line)) {
-        if (line.empty()) continue;
-        auto parts = splitString(line, ',');
-        char type = parts[0][0];
-        Movie* movie = MovieFactory::create(type, parts);
-        if (movie) {
-            int bucket = getBucket(type);
-            moviesByType[bucket].push_back(movie);
-        }
-    }
-}
+  /// findMovie
+  /// Looks up a Movie by its key. If not found, returns nullptr (and prints
+  /// an error in the .cpp implementation).
+  /// \param key  Unique movie key
+  /// \return     Pointer to Movie or nullptr if missing
+  Movie *findMovie(const std::string &key);
 
-// Read and execute commands
-void MovieStore::readCommandsFromFile(const std::string& filename) {
-    std::ifstream inFile(filename);
-    if (!inFile) {
-        std::cerr << "Error opening commands file: " << filename << std::endl;
-        return;
-    }
-    std::string line;
-    while (std::getline(inFile, line)) {
-        if (line.empty()) continue;
-        auto parts = splitString(line, ' ');
-        char cmd = parts[0][0];
-        auto command = CommandFactory::create(cmd, parts);
-        if (command) {
-            command->perform(*this, parts);
-            delete command;
-        }
-    }
-}
+  /// displayInventory
+  /// Prints the full inventory, grouped and sorted by the assignment’s
+  /// rules (Comedy by title/year, Drama by director/title, Classics by
+  /// date/actor), with separators before and after.
+  void displayInventory() const;
 
-// Execute commands directly
-void MovieStore::executeCommands(const std::string& filename) {
-    readCommandsFromFile(filename);
-}
+  /// getOriginalStock
+  /// Retrieves the initial stock count recorded for the given key.
+  /// Returns -1 if the key is not found.
+  /// \param movieKey  Unique movie key
+  /// \return          Original stock count or -1
+  int getOriginalStock(const std::string &movieKey) const;
+};
 
-// Sort all movie buckets
-void MovieStore::sortInventory() {
-    for (auto& bucket : moviesByType) {
-        std::sort(bucket.begin(), bucket.end(), [](Movie* a, Movie* b) {
-            return a->isLessThan(b);
-        });
-    }
-}
-
-// Destructor: free all allocated movies and customers
-MovieStore::~MovieStore() {
-    for (auto& bucket : moviesByType) {
-        for (auto* m : bucket) {
-            delete m;
-        }
-    }
-    for (auto& kv : customerList) {
-        delete kv.second;
-    }
-}
+#endif // MOVIESTORE_H

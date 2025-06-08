@@ -1,46 +1,66 @@
 #ifndef CLASSICS_H
 #define CLASSICS_H
 
-#include <vector>
+//------------------------------------------------------------------------------
+// Standard library headers
+//------------------------------------------------------------------------------
 #include <string>
 
+//------------------------------------------------------------------------------
+// Project headers
+//------------------------------------------------------------------------------
 #include "movie.h"
 #include "movieFactory.h"
 
-/**
- * Represents a classic movie, including release date and leading actor.
- */
+/// ---------------------------------------------------------------------------
+/// Classics
+///
+/// A subclass of Movie representing classic films. Includes additional fields
+/// for the lead actor and release month, and provides polymorphic overrides.
+/// ---------------------------------------------------------------------------
 class Classics : public Movie {
 public:
-    /** 
-     * Construct from a token list: 
-     * [genreCode, director, title, month, year, actorFirst actorLast]
-     */
-    explicit Classics(const std::vector<std::string>& params);
+  /// Constructor
+  /// \param stock     Initial number of copies in stock
+  /// \param director  Director's name
+  /// \param title     Movie title
+  /// \param actor     Lead actor's full name
+  /// \param month     Release month (1–12)
+  /// \param year      Release year
+  Classics(int stock, const std::string &director, const std::string &title,
+           const std::string &actor, int month, int year)
+      : Movie(stock, director, title, year), actor(actor), month(month) {}
 
-    int getReleaseYear() const override;
-    void printDetails() const override;
-    bool isLessThan(const Movie* other) const override;
-    bool matches(int month,
-                 int year,
-                 const std::string& titleQuery,
-                 const std::string& directorQuery,
-                 const std::string& leadActor) const override;
+  /// display
+  /// Prints movie details in the format:
+  ///   "<year> <month>, <actor>, <director>, <title> (<stock>) - Classics"
+  void display() const override;
+
+  /// getMovieInfo
+  /// Returns a string suitable for transaction history:
+  ///   "<year> <month>, <actor>, <director>, <title> (<stock>) - Classics"
+  std::string getMovieInfo() const override;
+
+  /// getKey
+  /// Generates the lookup key:
+  ///   "<month> <year> <actor>"
+  std::string getKey() const override;
+
+  /// getType
+  /// Returns the genre code for Classics ("C").
+  std::string getType() const override;
+
+  /// getActor
+  /// Accessor for the lead actor.
+  std::string getActor() const;
+
+  /// getMonth
+  /// Accessor for the release month.
+  int getMonth() const;
 
 private:
-    int releaseMonth_{0};
-    int releaseYear_{0};
-    std::string leadActor_;
-    static constexpr char genreCode_ = 'C';
+  std::string actor; ///< Lead actor for this classic
+  int month;         ///< Release month
 };
 
-/**
- * Factory for Classics objects; self-registers with MovieFactory.
- */
-class ClassicsFactory : public MovieFactory {
-public:
-    ClassicsFactory();
-    Movie* makeMovie(const std::vector<std::string>& params) const override;
-};
-
-#endif  // CLASSICS_H
+#endif // CLASSICS_H

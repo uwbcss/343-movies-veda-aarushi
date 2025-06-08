@@ -1,23 +1,36 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include <vector>
-#include <string>
-#include "movieStore.h"
+//------------------------------------------------------------------------------
+// Forward declarations
+//------------------------------------------------------------------------------
+class MovieStore;
+class CustomerDB;
 
-/**
- * Command interface: each concrete command implements this.
- */
+/// ---------------------------------------------------------------------------
+/// Command
+///
+/// Abstract base class for all customer/store commands:
+///   - BorrowCommand
+///   - ReturnCommand
+///   - InventoryCommand
+///   - HistoryCommand
+///
+/// Provides a uniform interface (`execute`) and ensures derived classes
+/// are cleaned up correctly via a virtual destructor.
+/// ---------------------------------------------------------------------------
 class Command {
 public:
-    virtual ~Command() = default;
+  /// execute
+  /// Pure-virtual method to apply this command to the MovieStore and
+  /// CustomerDB. \param store      Reference to the central MovieStore
+  /// (inventory/actions) \param customers  Reference to the CustomerDB
+  /// (history/actions)
+  virtual void execute(MovieStore &store, CustomerDB &customers) = 0;
 
-    /** 
-     * Execute this command against the given store 
-     * using the provided argument list.
-     */
-    virtual void perform(MovieStore& store,
-                         const std::vector<std::string>& parameters) const = 0;
+  /// Destructor
+  /// Virtual to ensure proper cleanup of derived Command objects.
+  virtual ~Command() {}
 };
 
-#endif  // COMMAND_H
+#endif // COMMAND_H
