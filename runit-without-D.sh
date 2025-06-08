@@ -1,20 +1,20 @@
 #!/bin/bash
 set -e
 
-# 1) Clean and recompile
-make clean
-make
+# Compile all sources into b.out
+g++ -std=c++17 -Wall -Wextra *.cpp -o b.out
 
-echo "Running without Drama genre..."
+# Back up and filter out Drama-genre movies (lines starting with "D,")
+cp data4movies.txt data4movies.bak
+grep -v '^D,' data4movies.bak > data4movies.txt
 
-# 2) Back up the original movies file
-cp data4movies.txt data4movies.orig
+# Run and capture output
+./b.out > output-no-D.txt 2>&1
 
-# 3) Filter out lines that start with "D," and overwrite data4movies.txt
-grep -v '^D,' data4movies.orig > data4movies.txt
+# Restore original movies file
+mv data4movies.bak data4movies.txt
 
-# 4) Run the program
-./a.out
+# Clean up
+rm -f b.out
 
-# 5) Restore the original movies file
-mv data4movies.orig data4movies.txt
+echo "Generated output-no-D.txt"

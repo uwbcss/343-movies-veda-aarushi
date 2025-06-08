@@ -1,20 +1,20 @@
 #!/bin/bash
-
-# Exit on error
 set -e
 
-# 1) Build
-make clean
-make
+# Compile all sources into b.out
+g++ -std=c++17 -Wall -Wextra *.cpp -o b.out
 
-echo "Running without Borrow (B) commands..."
+# Back up and filter out Borrow commands (lines starting with "B ")
+cp data4commands.txt data4commands.bak
+grep -v '^B ' data4commands.bak > data4commands.txt
 
-# 2) Back up and filter out Borrow lines
-cp data4commands.txt data4commands.orig
-grep -v '^B ' data4commands.orig > data4commands.txt
+# Run and capture output
+./b.out > output-no-B.txt 2>&1
 
-# 3) Run the program
-./a.out
+# Restore original commands file
+mv data4commands.bak data4commands.txt
 
-# 4) Restore the original commands file
-mv data4commands.orig data4commands.txt
+# Clean up
+rm -f b.out
+
+echo "Generated output-no-B.txt"

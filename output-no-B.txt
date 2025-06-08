@@ -1,0 +1,146 @@
+Start testStore1
+End testStore1
+Start testStore2
+Unknown movie type: Z, discarding line.
+Unknown movie type: Z, discarding line.
+==========================
+Annie Hall, 1977,  Woody Allen (10) - Comedy
+Fargo, 1996,  Joel Coen (10) - Comedy
+National Lampoon's Animal House, 1978,  John Landis (10) - Comedy
+Pirates of the Caribbean, 2000,  Different Years (10) - Comedy
+Pirates of the Caribbean, 2003,  Gore Verbinski (10) - Comedy
+Sleepless in Seattle, 1993,  Nora Ephron (10) - Comedy
+When Harry Met Sally, 1989,  Rob Reiner (10) - Comedy
+You've Got Mail, 1998,  Nora Ephron (10) - Comedy
+Barry Levinson, Good Morning Vietnam, 1988 (10) - Drama
+Barry Levinson, Same Director Good Morning Vietnam, 1988 (10) - Drama
+Clint Eastwood, Unforgiven, 1992 (10) - Drama
+Gus Van Sant, Good Will Hunting, 2000 (10) - Drama
+Jonathan Demme, Silence of the Lambs, 1991 (10) - Drama
+Nancy Savoca, Dogfight, 1991 (10) - Drama
+Phillippe De Broca, King of Hearts, 1967 (10) - Drama
+Steven Spielberg, Schindler's List, 1993 (10) - Drama
+1938 9, Cary Grant,  George Cukor, Holiday (10) - Classics
+1939 2, Clark Gable,  Victor Fleming, Gone With the Wind (10) - Classics
+1939 2, Vivien Leigh,  Victor Fleming, Gone With the Wind (10) - Classics
+1939 7, Judy Garland,  Victor Fleming, The Wizard of Oz (10) - Classics
+1940 5, Cary Grant,  George Cukor, The Philadelphia Story (10) - Classics
+1940 5, Katherine Hepburn,  George Cukor, The Philadelphia Story (10) - Classics
+1941 10, Humphrey Bogart,  John Huston, The Maltese Falcon (10) - Classics
+1942 8, Ingrid Bergman,  Michael Curtiz, Casablanca (10) - Classics
+1942 8, Humphrey Bogart,  Michael Curtiz, Casablanca (10) - Classics
+1946 11, Donna Reed,  Frank Capra, It's a Wonderful Life (10) - Classics
+1971 2, Malcolm McDowell,  Stanley Kubrick, A Clockwork Orange (10) - Classics
+1971 3, Ruth Gordon,  Hal Ashby, Harold and Maude (10) - Classics
+==========================
+End testStore2
+=====================================
+Start testStoreFinal
+Unknown movie type: Z, discarding line.
+Unknown movie type: Z, discarding line.
+==========================
+Displaying Inventory...
+==========================
+Annie Hall, 1977,  Woody Allen (10) - Comedy
+Fargo, 1996,  Joel Coen (10) - Comedy
+National Lampoon's Animal House, 1978,  John Landis (10) - Comedy
+Pirates of the Caribbean, 2000,  Different Years (10) - Comedy
+Pirates of the Caribbean, 2003,  Gore Verbinski (10) - Comedy
+Sleepless in Seattle, 1993,  Nora Ephron (10) - Comedy
+When Harry Met Sally, 1989,  Rob Reiner (10) - Comedy
+You've Got Mail, 1998,  Nora Ephron (10) - Comedy
+Barry Levinson, Good Morning Vietnam, 1988 (10) - Drama
+Barry Levinson, Same Director Good Morning Vietnam, 1988 (10) - Drama
+Clint Eastwood, Unforgiven, 1992 (10) - Drama
+Gus Van Sant, Good Will Hunting, 2000 (10) - Drama
+Jonathan Demme, Silence of the Lambs, 1991 (10) - Drama
+Nancy Savoca, Dogfight, 1991 (10) - Drama
+Phillippe De Broca, King of Hearts, 1967 (10) - Drama
+Steven Spielberg, Schindler's List, 1993 (10) - Drama
+1938 9, Cary Grant,  George Cukor, Holiday (10) - Classics
+1939 2, Clark Gable,  Victor Fleming, Gone With the Wind (10) - Classics
+1939 2, Vivien Leigh,  Victor Fleming, Gone With the Wind (10) - Classics
+1939 7, Judy Garland,  Victor Fleming, The Wizard of Oz (10) - Classics
+1940 5, Cary Grant,  George Cukor, The Philadelphia Story (10) - Classics
+1940 5, Katherine Hepburn,  George Cukor, The Philadelphia Story (10) - Classics
+1941 10, Humphrey Bogart,  John Huston, The Maltese Falcon (10) - Classics
+1942 8, Ingrid Bergman,  Michael Curtiz, Casablanca (10) - Classics
+1942 8, Humphrey Bogart,  Michael Curtiz, Casablanca (10) - Classics
+1946 11, Donna Reed,  Frank Capra, It's a Wonderful Life (10) - Classics
+1971 2, Malcolm McDowell,  Stanley Kubrick, A Clockwork Orange (10) - Classics
+1971 3, Ruth Gordon,  Hal Ashby, Harold and Maude (10) - Classics
+==========================
+==========================
+History for Minnie Mouse:
+No history for Minnie Mouse
+==========================
+==========================
+History for Freddie Frog:
+No history for Freddie Frog
+==========================
+==========================
+History for Wally Wacky:
+No history for Wally Wacky
+==========================
+ERROR: Stock limit reached for Harold and Maude. Cannot return more than originally available.
+ERROR: Stock limit reached for Harold and Maude. Cannot return more than originally available.
+ERROR: Stock limit reached for A Clockwork Orange. Cannot return more than originally available.
+ERROR: Stock limit reached for You've Got Mail. Cannot return more than originally available.
+Invalid command type: X, discarding line.
+ERROR: Stock limit reached for Harold and Maude. Cannot return more than originally available.
+Invalid command type: Z, discarding line.
+==========================
+Displaying Inventory...
+==========================
+Annie Hall, 1977,  Woody Allen (10) - Comedy
+Fargo, 1996,  Joel Coen (10) - Comedy
+National Lampoon's Animal House, 1978,  John Landis (10) - Comedy
+Pirates of the Caribbean, 2000,  Different Years (10) - Comedy
+Pirates of the Caribbean, 2003,  Gore Verbinski (10) - Comedy
+Sleepless in Seattle, 1993,  Nora Ephron (10) - Comedy
+When Harry Met Sally, 1989,  Rob Reiner (10) - Comedy
+You've Got Mail, 1998,  Nora Ephron (10) - Comedy
+Barry Levinson, Good Morning Vietnam, 1988 (10) - Drama
+Barry Levinson, Same Director Good Morning Vietnam, 1988 (10) - Drama
+Clint Eastwood, Unforgiven, 1992 (10) - Drama
+Gus Van Sant, Good Will Hunting, 2000 (10) - Drama
+Jonathan Demme, Silence of the Lambs, 1991 (10) - Drama
+Nancy Savoca, Dogfight, 1991 (10) - Drama
+Phillippe De Broca, King of Hearts, 1967 (10) - Drama
+Steven Spielberg, Schindler's List, 1993 (10) - Drama
+1938 9, Cary Grant,  George Cukor, Holiday (10) - Classics
+1939 2, Clark Gable,  Victor Fleming, Gone With the Wind (10) - Classics
+1939 2, Vivien Leigh,  Victor Fleming, Gone With the Wind (10) - Classics
+1939 7, Judy Garland,  Victor Fleming, The Wizard of Oz (10) - Classics
+1940 5, Cary Grant,  George Cukor, The Philadelphia Story (10) - Classics
+1940 5, Katherine Hepburn,  George Cukor, The Philadelphia Story (10) - Classics
+1941 10, Humphrey Bogart,  John Huston, The Maltese Falcon (10) - Classics
+1942 8, Ingrid Bergman,  Michael Curtiz, Casablanca (10) - Classics
+1942 8, Humphrey Bogart,  Michael Curtiz, Casablanca (10) - Classics
+1946 11, Donna Reed,  Frank Capra, It's a Wonderful Life (10) - Classics
+1971 2, Malcolm McDowell,  Stanley Kubrick, A Clockwork Orange (10) - Classics
+1971 3, Ruth Gordon,  Hal Ashby, Harold and Maude (10) - Classics
+==========================
+==========================
+History for Minnie Mouse:
+No history for Minnie Mouse
+==========================
+==========================
+History for Mickey Mouse:
+No history for Mickey Mouse
+==========================
+==========================
+History for Freddie Frog:
+No history for Freddie Frog
+==========================
+==========================
+History for Wally Wacky:
+No history for Wally Wacky
+==========================
+==========================
+History for Porky Pig:
+No history for Porky Pig
+==========================
+End testStoreFinal
+=====================================
+Done.

@@ -1,20 +1,20 @@
 #!/bin/bash
 set -e
 
-# 1) Clean and compile
-make clean
-make
+# Compile all sources into b.out
+g++ -std=c++17 -Wall -Wextra *.cpp -o b.out
 
-echo "Running without Return (R) commands..."
+# Back up and filter out Return commands (lines starting with "R ")
+cp data4commands.txt data4commands.bak
+grep -v '^R ' data4commands.bak > data4commands.txt
 
-# 2) Back up the original commands file
-cp data4commands.txt data4commands.orig
+# Run and capture output
+./b.out > output-no-R.txt 2>&1
 
-# 3) Filter out lines starting with "R " and overwrite data4commands.txt
-grep -v '^R ' data4commands.orig > data4commands.txt
+# Restore original commands file
+mv data4commands.bak data4commands.txt
 
-# 4) Run the program
-./a.out
+# Clean up
+rm -f b.out
 
-# 5) Restore the original commands file
-mv data4commands.orig data4commands.txt
+echo "Generated output-no-R.txt"
